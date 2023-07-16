@@ -12,7 +12,8 @@ namespace Mode {
     /// @param block byte array to be encrypt with CFB. (read+write)
     /// @param iv initial vector. (read+write)
     /// @param blockToEncrypt callback function that will encrypt the block using a choosen block cipher.
-    static void encrypt(unsigned char *block, unsigned char *iv, void (*blockToEncrypt)(unsigned char *)) {
+    template <typename function_t>
+    static void encrypt(unsigned char *block, unsigned char *iv, function_t blockToEncrypt) {
       blockToEncrypt(iv);
       Operation::exor<BLOCK_SIZE, size_t>(block, iv);
       std::memcpy(iv, block, BLOCK_SIZE);
@@ -23,7 +24,8 @@ namespace Mode {
     /// @param iv initial vector. (read+write)
     /// @param blockToEncrypt callback function that will encrypt the block using a choosen block cipher).
     /// @warning In CFB mode we should USE again the SAME BLOCK CIPHER ENCRYPTION not its decryption.
-    static void decrypt(unsigned char *block, unsigned char *iv, void (*blockToEncrypt)(unsigned char *)) {
+    template <typename function_t>
+    static void decrypt(unsigned char *block, unsigned char *iv, function_t blockToEncrypt) {
       unsigned char original_block[BLOCK_SIZE];
       std::memcpy(original_block, block, BLOCK_SIZE);
 

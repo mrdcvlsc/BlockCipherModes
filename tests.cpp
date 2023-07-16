@@ -5,6 +5,17 @@
 #include "BlockCipherModes/cfb.hpp"
 #include "small_test.hpp"
 
+template <size_t BLOCKSIZE>
+struct SudoCipher {
+  void encrypt(unsigned char *) {
+    // encrypt block here.
+  }
+
+  void decrypt(unsigned char *) {
+    // decrypt block here.
+  }
+};
+
 int main() {
   smlts::test t;
 
@@ -13,6 +24,8 @@ int main() {
   std::cout << "CBC Mode Test Block 16 : \n";
   {
     constexpr size_t BLOCK_SIZE = 16;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
     };
@@ -39,15 +52,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 16 Encrypt");
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 16 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 16");
@@ -57,6 +66,8 @@ int main() {
   std::cout << "CBC Mode Test Block 8 : \n";
   {
     constexpr size_t BLOCK_SIZE = 8;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
     };
@@ -83,15 +94,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 8 Encrypt");
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 8 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 8");
@@ -101,6 +108,8 @@ int main() {
   std::cout << "CBC Mode Test Block 4 : \n";
   {
     constexpr size_t BLOCK_SIZE = 4;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
 
     unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
@@ -117,15 +126,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 4 Encrypt");
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 4 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 4");
@@ -136,6 +141,8 @@ int main() {
   {
 
     constexpr size_t BLOCK_SIZE = 3;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
 
     unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
@@ -152,15 +159,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 3 Encrypt");
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 3 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 3");
@@ -171,6 +174,8 @@ int main() {
   {
 
     constexpr size_t BLOCK_SIZE = 10;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
     };
@@ -197,15 +202,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 10 Encrypt");
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 10 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 10");
@@ -216,6 +217,8 @@ int main() {
   {
 
     constexpr size_t BLOCK_SIZE = 15;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
     };
@@ -242,15 +245,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 15 Encrypt");
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 15 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 15");
@@ -261,6 +260,8 @@ int main() {
   {
 
     constexpr size_t BLOCK_SIZE = 17;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
     };
@@ -287,15 +288,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 17 Encrypt");
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 17 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 17");
@@ -306,6 +303,8 @@ int main() {
   {
     constexpr size_t DATA_SIZE = 16;
     constexpr size_t BLOCK_SIZE = 8;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
 
     unsigned char iv_original[BLOCK_SIZE] = {
@@ -341,16 +340,16 @@ int main() {
     }
 
     for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CBC<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [](unsigned char *) {
-        // encrypt the block here.
+      Mode::CBC<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
+        cipher.encrypt(block);
       });
     }
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode 2 Block 8 Encrypt");
 
     for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CBC<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [](unsigned char *) {
-        // decrypt the block here.
+      Mode::CBC<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
+        cipher.decrypt(block);
       });
     }
 
@@ -363,6 +362,8 @@ int main() {
   {
     constexpr size_t DATA_SIZE = 16;
     constexpr size_t BLOCK_SIZE = 2;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
 
     unsigned char iv_original[BLOCK_SIZE] = {
@@ -401,16 +402,16 @@ int main() {
     }
 
     for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CBC<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [](unsigned char *) {
-        // encrypt the block here.
+      Mode::CBC<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
+        cipher.encrypt(block);
       });
     }
 
     t.byte_eq(subject, validator, sizeof(validator), "CBC Mode eight block of size 8 Encrypt");
 
     for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CBC<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [](unsigned char *) {
-        // decrypt the block here.
+      Mode::CBC<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
+        cipher.decrypt(block);
       });
     }
 
@@ -426,6 +427,8 @@ int main() {
   std::cout << "CFB Mode Test Block 16 : \n";
   {
     constexpr size_t BLOCK_SIZE = 16;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
     };
@@ -452,15 +455,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 16 Encrypt");
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 16 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 16");
@@ -470,6 +469,8 @@ int main() {
   std::cout << "CFB Mode Test Block 8 : \n";
   {
     constexpr size_t BLOCK_SIZE = 8;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
     };
@@ -496,15 +497,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 8 Encrypt");
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 8 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 8");
@@ -514,6 +511,8 @@ int main() {
   std::cout << "CFB Mode Test Block 4 : \n";
   {
     constexpr size_t BLOCK_SIZE = 4;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
 
     unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
@@ -530,15 +529,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 4 Encrypt");
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 4 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 4");
@@ -549,6 +544,8 @@ int main() {
   {
 
     constexpr size_t BLOCK_SIZE = 3;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
 
     unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
@@ -565,15 +562,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 3 Encrypt");
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 3 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 3");
@@ -584,6 +577,8 @@ int main() {
   {
 
     constexpr size_t BLOCK_SIZE = 10;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
     };
@@ -610,15 +605,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 10 Encrypt");
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 10 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 10");
@@ -629,6 +620,8 @@ int main() {
   {
 
     constexpr size_t BLOCK_SIZE = 15;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
     };
@@ -655,15 +648,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 15 Encrypt");
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 15 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 15");
@@ -674,6 +663,8 @@ int main() {
   {
 
     constexpr size_t BLOCK_SIZE = 17;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     unsigned char iv_original[BLOCK_SIZE] = {
       0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
     };
@@ -700,15 +691,11 @@ int main() {
       validator[i] = iv[i] ^ subject[i];
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [](unsigned char *) {
-      // encrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 17 Encrypt");
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [](unsigned char *) {
-      // decrypt the block here.
-    });
+    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
     t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 17 Decrypt");
     t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 17");
@@ -719,6 +706,8 @@ int main() {
   {
     constexpr size_t DATA_SIZE = 16;
     constexpr size_t BLOCK_SIZE = 8;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
 
     unsigned char iv_original[BLOCK_SIZE] = {
@@ -754,16 +743,16 @@ int main() {
     }
 
     for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CFB<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [](unsigned char *) {
-        // encrypt the block here.
+      Mode::CFB<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
+        cipher.encrypt(block);
       });
     }
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode 2 Block 8 Encrypt");
 
     for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CFB<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [](unsigned char *) {
-        // decrypt the block here.
+      Mode::CFB<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
+        cipher.decrypt(block);
       });
     }
 
@@ -776,6 +765,8 @@ int main() {
   {
     constexpr size_t DATA_SIZE = 16;
     constexpr size_t BLOCK_SIZE = 2;
+    SudoCipher<BLOCK_SIZE> cipher;
+
     constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
 
     unsigned char iv_original[BLOCK_SIZE] = {
@@ -814,16 +805,16 @@ int main() {
     }
 
     for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CFB<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [](unsigned char *) {
-        // encrypt the block here.
+      Mode::CFB<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
+        cipher.encrypt(block);
       });
     }
 
     t.byte_eq(subject, validator, sizeof(validator), "CFB Mode eight block of size 8 Encrypt");
 
     for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CFB<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [](unsigned char *) {
-        // decrypt the block here.
+      Mode::CFB<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
+        cipher.decrypt(block);
       });
     }
 
