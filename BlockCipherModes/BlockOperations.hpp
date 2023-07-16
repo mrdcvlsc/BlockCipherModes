@@ -1,11 +1,11 @@
 #ifndef MRDCVLSC_BLOCK_OPERATIONS_HPP
 #define MRDCVLSC_BLOCK_OPERATIONS_HPP
 
+#include <cstring>
 #include <iostream>
 
 namespace Mode {
   namespace Operation {
-
     /// @brief performs an exclusive OR (XOR/EOR) operation.
     /// @tparam BLOCK_SIZE size of the block.
     /// @param dest starting pointer where the results will be stored.
@@ -41,7 +41,7 @@ namespace Mode {
         throw "exor template argument type is not an integral type";
       }
     }
-  } // namespace Block
+  } // namespace Operation
 } // namespace Mode
 
 #endif

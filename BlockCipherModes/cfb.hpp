@@ -2,42 +2,34 @@
 #define MRDCVLSC_CFB_HPP
 
 #include "BlockOperations.hpp"
-#include <iostream>
 
 namespace Mode {
   /// @brief CFB class.
   /// @tparam BLOCK_SIZE the size of a CFB block in bytes.
   template <size_t BLOCK_SIZE>
   struct CFB {
-
     /// @brief performs CFB mode block encryption.
-    /// @param iv initial vector - values will mutate after the function call.
-    /// @param block CFB block to encrypt - values will mutate after the function call
-    /// @param blockToEncrypt callback function that will encrypt the block.
-    static void encrypt(
-      unsigned char* iv,
-      unsigned char* block,
-      void (*blockToEncrypt)(unsigned char *)
-    )
-    {
+    /// @param block byte array to be encrypt with CFB. (read+write)
+    /// @param iv initial vector. (read+write)
+    /// @param blockToEncrypt callback function that will encrypt the block using a choosen block cipher.
+    static void encrypt(unsigned char *block, unsigned char *iv, void (*blockToEncrypt)(unsigned char *)) {
+      blockToEncrypt(iv);
       Operation::exor<BLOCK_SIZE, size_t>(block, iv);
-      blockToEncrypt(block);
       std::memcpy(iv, block, BLOCK_SIZE);
     }
 
-    /// @brief performs an exclusive OR (XOR/EOR) operation.
-    /// @param iv initial vector.
-    /// @param block block to encrypt.
-    /// @param blockToEncrypt callback function that will encrypt the block.
-    static void decrypt(
-      unsigned char* iv,
-      unsigned char* block,
-      void (*blockToDecrypt)(unsigned char *)
-    )
-    {
-      blockToDecrypt(block);
+    /// @brief performs CFB mode block decryption.
+    /// @param block byte array to be decrypt with CFB. (read+write)
+    /// @param iv initial vector. (read+write)
+    /// @param blockToEncrypt callback function that will encrypt the block using a choosen block cipher).
+    /// @warning In CFB mode we should USE again the SAME BLOCK CIPHER ENCRYPTION not its decryption.
+    static void decrypt(unsigned char *block, unsigned char *iv, void (*blockToEncrypt)(unsigned char *)) {
+      unsigned char original_block[BLOCK_SIZE];
+      std::memcpy(original_block, block, BLOCK_SIZE);
+
+      blockToEncrypt(iv);
       Operation::exor<BLOCK_SIZE, size_t>(block, iv);
-      std::memcpy(iv, block, BLOCK_SIZE);
+      std::memcpy(iv, original_block, BLOCK_SIZE);
     }
   };
 } // namespace Mode

@@ -16,9 +16,24 @@ Some common **block cipher modes** include Electronic Codebook (ECB), Cipher Blo
 
 These modes provide different approaches when encrypting and processing multiple blocks of data, ensuring confidentiality and integrity of the encrypted information.
 
+## **Currently Supported Modes**
+
+- :green_square: - already supported and available (done)
+- :yellow_square: - will be supported in the future (pending)
+- :red_square: - will not be supported
+
+| Mode  | Name                  | Status               |
+| ----- | --------------------- | :------------------: |
+| `ECB` | Electronic Codebook   | :red_square:         |
+| `CBC` | Cipher Block Chaining | :green_square:       |
+| `OFB` | Output Feedback       | :yellow_square:      |
+| `CFB` | Cipher Feedback       | :green_square:       |
+| `CTR` | Counter               | :yellow_square:      |
+| `GCM` | Galois/Counter Mode   | :yellow_square:      |
+
 -----------
 
-## **Requirements**
+## **Minimum Requirement(s)**
 
 - Requires C++17 so you need to compile it with the compilation flag `-std=c++17`.
 
@@ -50,7 +65,7 @@ int main()
     0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e, 
   };
 
-  CBC<BLOCK_LEN>::encrypt(iv_enc, data, [](unsigned char* block) {
+  CBC<BLOCK_LEN>::encrypt(data, iv_enc, [](unsigned char* block) {
     // this is where you will encrypt the `block`
     
     // But for this sample we just leave the block "as is", no
@@ -59,9 +74,9 @@ int main()
     // inside this callback method to achieve maximum security.
   });
 
-  CBC<BLOCK_LEN>::decrypt(iv_dec, data, [](unsigned char* block) {
+  CBC<BLOCK_LEN>::decrypt(data, iv_dec, [](unsigned char* block) {
     // this is where you will decrypt the `block`
-    // but for this sample we just leave the block as is
+    // but for this sample we just leave the block "as is"
   });
 }
 ```
@@ -134,16 +149,14 @@ int main()
 
   // ============= MULTI-BLOCK DATA USAGE =============
   for (size_t i = 0; i < BLOCKS; i++) {
-    CBC<BLOCK_LEN>::encrypt(iv_enc, &data[i * BLOCK_LEN], [](unsigned char* block) {
-      // as is for this example.
+    CBC<BLOCK_LEN>::encrypt(&data[i * BLOCK_LEN], iv_enc, [](unsigned char* block) {
+      // "as is" for this example.
     });
   }
 
-  t.byte_eq(data, validator, sizeof(validator), "CBC Mode 2 Block 8 Encrypt");
-
   for (size_t i = 0; i < BLOCKS; i++) {
-    CBC<BLOCK_LEN>::decrypt(iv_dec, &data[i * BLOCK_LEN], [](unsigned char* block) {
-      // as is for this example.
+    CBC<BLOCK_LEN>::decrypt(&data[i * BLOCK_LEN], iv_dec, [](unsigned char* block) {
+      // "as is" for this example.
     });
   }
 }
