@@ -7,821 +7,821 @@
 
 template <size_t BLOCKSIZE>
 struct SudoCipher {
-  void encrypt(unsigned char *) {
-    // encrypt block here.
-  }
+    void encrypt(unsigned char *) {
+        // encrypt block here.
+    }
 
-  void decrypt(unsigned char *) {
-    // decrypt block here.
-  }
+    void decrypt(unsigned char *) {
+        // decrypt block here.
+    }
 };
 
 int main() {
-  smlts::test t;
+    smlts::test t;
 
-  // ############# CBC ###############
+    // ############# CBC ###############
 
-  std::cout << "CBC Mode Test Block 16 : \n";
-  {
-    constexpr size_t BLOCK_SIZE = 16;
-    SudoCipher<BLOCK_SIZE> cipher;
+    std::cout << "CBC Mode Test Block 16 : \n";
+    {
+        constexpr size_t BLOCK_SIZE = 16;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
-    };
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
-    };
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
+        };
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
-    };
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
+        };
 
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
 
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
+
+        Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 16 Encrypt");
+
+        Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 16 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 16");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 16 Altered");
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CBC Mode Test Block 8 : \n";
+    {
+        constexpr size_t BLOCK_SIZE = 8;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 16 Encrypt");
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 16 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 16");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 16 Altered");
-  }
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-  std::cout << "CBC Mode Test Block 8 : \n";
-  {
-    constexpr size_t BLOCK_SIZE = 8;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-    };
+        Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-    };
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 8 Encrypt");
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 8 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 8");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 8 Altered");
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CBC Mode Test Block 4 : \n";
+    {
+        constexpr size_t BLOCK_SIZE = 4;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 8 Encrypt");
+        unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 8 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 8");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 8 Altered");
-  }
+        unsigned char iv_bkcup[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
 
-  std::cout << "CBC Mode Test Block 4 : \n";
-  {
-    constexpr size_t BLOCK_SIZE = 4;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char subject[BLOCK_SIZE] = {0x00, 0x01, 0x02, 0x03};
 
-    unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+        unsigned char sbackup[BLOCK_SIZE] = {0x00, 0x01, 0x02, 0x03};
 
-    unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char subject[BLOCK_SIZE] = {0x00, 0x01, 0x02, 0x03};
+        Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char sbackup[BLOCK_SIZE] = {0x00, 0x01, 0x02, 0x03};
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 4 Encrypt");
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 4 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 4");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 4 Altered");
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CBC Mode Test Block 3 : \n";
+    {
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 4 Encrypt");
+        constexpr size_t BLOCK_SIZE = 3;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 4 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 4");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 4 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
 
-  std::cout << "CBC Mode Test Block 3 : \n";
-  {
+        unsigned char iv_bkcup[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
 
-    constexpr size_t BLOCK_SIZE = 3;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char subject[BLOCK_SIZE] = {0x00, 0x01, 0x02};
 
-    unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+        unsigned char sbackup[BLOCK_SIZE] = {0x00, 0x01, 0x02};
 
-    unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char subject[BLOCK_SIZE] = {0x00, 0x01, 0x02};
+        Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char sbackup[BLOCK_SIZE] = {0x00, 0x01, 0x02};
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 3 Encrypt");
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 3 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 3");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 3 Altered");
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CBC Mode Test Block 10 : \n";
+    {
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 3 Encrypt");
+        constexpr size_t BLOCK_SIZE = 10;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 3 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 3");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 3 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
+        };
 
-  std::cout << "CBC Mode Test Block 10 : \n";
-  {
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
+        };
 
-    constexpr size_t BLOCK_SIZE = 10;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
-    };
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
-    };
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
-    };
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
-    };
+        Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
-    };
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 10 Encrypt");
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 10 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 10");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 10 Altered");
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CBC Mode Test Block 15 : \n";
+    {
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 10 Encrypt");
+        constexpr size_t BLOCK_SIZE = 15;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 10 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 10");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 10 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
+        };
 
-  std::cout << "CBC Mode Test Block 15 : \n";
-  {
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
+        };
 
-    constexpr size_t BLOCK_SIZE = 15;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
-    };
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
-    };
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
-    };
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd,
-    };
+        Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd,
-    };
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 15 Encrypt");
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 15 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 15");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 15 Altered");
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CBC Mode Test Block 17 : \n";
+    {
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 15 Encrypt");
+        constexpr size_t BLOCK_SIZE = 17;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 15 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 15");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 15 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
+        };
 
-  std::cout << "CBC Mode Test Block 17 : \n";
-  {
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
+        };
 
-    constexpr size_t BLOCK_SIZE = 17;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd, 0xfa, 0x0b,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
-    };
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd, 0xfa, 0x0b,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
-    };
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
-    };
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd, 0xfa, 0x0b,
-    };
+        Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd, 0xfa, 0x0b,
-    };
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 17 Encrypt");
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 17 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 17");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 17 Altered");
     }
 
-    Mode::CBC<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CBC Mode Test two 8 Block : \n";
+    {
+        constexpr size_t DATA_SIZE = 16;
+        constexpr size_t BLOCK_SIZE = 8;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode Block 17 Encrypt");
+        constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
 
-    Mode::CBC<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode Block 17 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV Block 17");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode Block 17 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-  std::cout << "CBC Mode Test two 8 Block : \n";
-  {
-    constexpr size_t DATA_SIZE = 16;
-    constexpr size_t BLOCK_SIZE = 8;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
+        unsigned char subject[DATA_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        unsigned char sbackup[DATA_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        unsigned char validator[DATA_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        unsigned char iv_block[BLOCK_SIZE];
+        std::memcpy(iv_block, iv, BLOCK_SIZE);
 
-    unsigned char subject[DATA_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
+        for (size_t i = 0; i < BLOCKS; ++i) {
+            for (size_t j = 0; j < BLOCK_SIZE; ++j) {
+                validator[(i * BLOCK_SIZE) + j] = iv_block[j] ^ subject[(i * BLOCK_SIZE) + j];
+                iv_block[j] = validator[(i * BLOCK_SIZE) + j];
+            }
+        }
 
-    unsigned char sbackup[DATA_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
+        for (size_t i = 0; i < BLOCKS; i++) {
+            Mode::CBC<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
+                cipher.encrypt(block);
+            });
+        }
 
-    unsigned char validator[DATA_SIZE] = {};
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode 2 Block 8 Encrypt");
 
-    unsigned char iv_block[BLOCK_SIZE];
-    std::memcpy(iv_block, iv, BLOCK_SIZE);
+        for (size_t i = 0; i < BLOCKS; i++) {
+            Mode::CBC<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
+                cipher.decrypt(block);
+            });
+        }
 
-    for (size_t i = 0; i < BLOCKS; ++i) {
-      for (size_t j = 0; j < BLOCK_SIZE; ++j) {
-        validator[(i * BLOCK_SIZE) + j] = iv_block[j] ^ subject[(i * BLOCK_SIZE) + j];
-        iv_block[j] = validator[(i * BLOCK_SIZE) + j];
-      }
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode 2 Block 8 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV 2 Block 8");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode 2 Block 8 Altered");
     }
 
-    for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CBC<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
-        cipher.encrypt(block);
-      });
+    std::cout << "CBC Mode Test eight 2 Block : \n";
+    {
+        constexpr size_t DATA_SIZE = 16;
+        constexpr size_t BLOCK_SIZE = 2;
+        SudoCipher<BLOCK_SIZE> cipher;
+
+        constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
+
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde,
+          0xad,
+        };
+
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde,
+          0xad,
+        };
+
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde,
+          0xad,
+        };
+
+        unsigned char subject[DATA_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
+
+        unsigned char sbackup[DATA_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
+
+        unsigned char validator[DATA_SIZE] = {};
+
+        unsigned char iv_block[BLOCK_SIZE];
+        std::memcpy(iv_block, iv, BLOCK_SIZE);
+
+        for (size_t i = 0; i < BLOCKS; ++i) {
+            for (size_t j = 0; j < BLOCK_SIZE; ++j) {
+                validator[(i * BLOCK_SIZE) + j] = iv_block[j] ^ subject[(i * BLOCK_SIZE) + j];
+                iv_block[j] = validator[(i * BLOCK_SIZE) + j];
+            }
+        }
+
+        for (size_t i = 0; i < BLOCKS; i++) {
+            Mode::CBC<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
+                cipher.encrypt(block);
+            });
+        }
+
+        t.byte_eq(subject, validator, sizeof(validator), "CBC Mode eight block of size 8 Encrypt");
+
+        for (size_t i = 0; i < BLOCKS; i++) {
+            Mode::CBC<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
+                cipher.decrypt(block);
+            });
+        }
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode eight block of size 8 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV eight block of size 8");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode eight block of size 8 Altered");
     }
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode 2 Block 8 Encrypt");
+    //
 
-    for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CBC<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
-        cipher.decrypt(block);
-      });
+    // ############# CFB ###############
+
+    std::cout << "CFB Mode Test Block 16 : \n";
+    {
+        constexpr size_t BLOCK_SIZE = 16;
+        SudoCipher<BLOCK_SIZE> cipher;
+
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
+        };
+
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
+        };
+
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
+        };
+
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
+
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
+
+        unsigned char validator[BLOCK_SIZE] = {};
+
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
+
+        Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 16 Encrypt");
+
+        Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 16 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 16");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 16 Altered");
     }
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode 2 Block 8 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV 2 Block 8");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode 2 Block 8 Altered");
-  }
+    std::cout << "CFB Mode Test Block 8 : \n";
+    {
+        constexpr size_t BLOCK_SIZE = 8;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-  std::cout << "CBC Mode Test eight 2 Block : \n";
-  {
-    constexpr size_t DATA_SIZE = 16;
-    constexpr size_t BLOCK_SIZE = 2;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde,
-      0xad,
-    };
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde,
-      0xad,
-    };
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        };
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde,
-      0xad,
-    };
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        };
 
-    unsigned char subject[DATA_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char sbackup[DATA_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char validator[DATA_SIZE] = {};
+        Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char iv_block[BLOCK_SIZE];
-    std::memcpy(iv_block, iv, BLOCK_SIZE);
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 8 Encrypt");
 
-    for (size_t i = 0; i < BLOCKS; ++i) {
-      for (size_t j = 0; j < BLOCK_SIZE; ++j) {
-        validator[(i * BLOCK_SIZE) + j] = iv_block[j] ^ subject[(i * BLOCK_SIZE) + j];
-        iv_block[j] = validator[(i * BLOCK_SIZE) + j];
-      }
+        Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 8 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 8");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 8 Altered");
     }
 
-    for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CBC<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
-        cipher.encrypt(block);
-      });
+    std::cout << "CFB Mode Test Block 4 : \n";
+    {
+        constexpr size_t BLOCK_SIZE = 4;
+        SudoCipher<BLOCK_SIZE> cipher;
+
+        unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+
+        unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+
+        unsigned char iv_bkcup[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+
+        unsigned char subject[BLOCK_SIZE] = {0x00, 0x01, 0x02, 0x03};
+
+        unsigned char sbackup[BLOCK_SIZE] = {0x00, 0x01, 0x02, 0x03};
+
+        unsigned char validator[BLOCK_SIZE] = {};
+
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
+
+        Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 4 Encrypt");
+
+        Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 4 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 4");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 4 Altered");
     }
 
-    t.byte_eq(subject, validator, sizeof(validator), "CBC Mode eight block of size 8 Encrypt");
+    std::cout << "CFB Mode Test Block 3 : \n";
+    {
 
-    for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CBC<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
-        cipher.decrypt(block);
-      });
+        constexpr size_t BLOCK_SIZE = 3;
+        SudoCipher<BLOCK_SIZE> cipher;
+
+        unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+
+        unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+
+        unsigned char iv_bkcup[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+
+        unsigned char subject[BLOCK_SIZE] = {0x00, 0x01, 0x02};
+
+        unsigned char sbackup[BLOCK_SIZE] = {0x00, 0x01, 0x02};
+
+        unsigned char validator[BLOCK_SIZE] = {};
+
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
+
+        Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 3 Encrypt");
+
+        Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 3 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 3");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 3 Altered");
     }
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CBC Mode eight block of size 8 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CBC Mode IV eight block of size 8");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CBC Mode eight block of size 8 Altered");
-  }
+    std::cout << "CFB Mode Test Block 10 : \n";
+    {
 
-  //
+        constexpr size_t BLOCK_SIZE = 10;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-  // ############# CFB ###############
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
+        };
 
-  std::cout << "CFB Mode Test Block 16 : \n";
-  {
-    constexpr size_t BLOCK_SIZE = 16;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
-    };
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
-    };
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
+        };
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0x33,
-    };
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
+        };
 
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 10 Encrypt");
+
+        Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 10 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 10");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 10 Altered");
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CFB Mode Test Block 15 : \n";
+    {
 
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 16 Encrypt");
+        constexpr size_t BLOCK_SIZE = 15;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 16 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 16");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 16 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
+        };
 
-  std::cout << "CFB Mode Test Block 8 : \n";
-  {
-    constexpr size_t BLOCK_SIZE = 8;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd,
+        };
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-    };
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-    };
+        Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 15 Encrypt");
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 15 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 15");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 15 Altered");
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CFB Mode Test Block 17 : \n";
+    {
 
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 8 Encrypt");
+        constexpr size_t BLOCK_SIZE = 17;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 8 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 8");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 8 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
+        };
 
-  std::cout << "CFB Mode Test Block 4 : \n";
-  {
-    constexpr size_t BLOCK_SIZE = 4;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+        unsigned char subject[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd, 0xfa, 0x0b,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+        unsigned char sbackup[BLOCK_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd, 0xfa, 0x0b,
+        };
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {0xde, 0xad, 0xbe, 0xef};
+        unsigned char validator[BLOCK_SIZE] = {};
 
-    unsigned char subject[BLOCK_SIZE] = {0x00, 0x01, 0x02, 0x03};
+        for (size_t i = 0; i < BLOCK_SIZE; ++i) {
+            validator[i] = iv[i] ^ subject[i];
+        }
 
-    unsigned char sbackup[BLOCK_SIZE] = {0x00, 0x01, 0x02, 0x03};
+        Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 17 Encrypt");
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 17 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 17");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 17 Altered");
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CFB Mode Test two 8 Block : \n";
+    {
+        constexpr size_t DATA_SIZE = 16;
+        constexpr size_t BLOCK_SIZE = 8;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 4 Encrypt");
+        constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 4 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 4");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 4 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-  std::cout << "CFB Mode Test Block 3 : \n";
-  {
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
+        };
 
-    constexpr size_t BLOCK_SIZE = 3;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char subject[DATA_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+        unsigned char sbackup[DATA_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+        unsigned char validator[DATA_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {0xde, 0xad, 0xbe};
+        unsigned char iv_block[BLOCK_SIZE];
+        std::memcpy(iv_block, iv, BLOCK_SIZE);
 
-    unsigned char subject[BLOCK_SIZE] = {0x00, 0x01, 0x02};
+        for (size_t i = 0; i < BLOCKS; ++i) {
+            for (size_t j = 0; j < BLOCK_SIZE; ++j) {
+                validator[(i * BLOCK_SIZE) + j] = iv_block[j] ^ subject[(i * BLOCK_SIZE) + j];
+                iv_block[j] = validator[(i * BLOCK_SIZE) + j];
+            }
+        }
 
-    unsigned char sbackup[BLOCK_SIZE] = {0x00, 0x01, 0x02};
+        for (size_t i = 0; i < BLOCKS; i++) {
+            Mode::CFB<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
+                cipher.encrypt(block);
+            });
+        }
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode 2 Block 8 Encrypt");
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        for (size_t i = 0; i < BLOCKS; i++) {
+            Mode::CFB<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
+                cipher.decrypt(block);
+            });
+        }
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode 2 Block 8 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV 2 Block 8");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode 2 Block 8 Altered");
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
+    std::cout << "CFB Mode Test eight 2 Block : \n";
+    {
+        constexpr size_t DATA_SIZE = 16;
+        constexpr size_t BLOCK_SIZE = 2;
+        SudoCipher<BLOCK_SIZE> cipher;
 
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 3 Encrypt");
+        constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
 
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
+        unsigned char iv_original[BLOCK_SIZE] = {
+          0xde,
+          0xad,
+        };
 
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 3 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 3");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 3 Altered");
-  }
+        unsigned char iv[BLOCK_SIZE] = {
+          0xde,
+          0xad,
+        };
 
-  std::cout << "CFB Mode Test Block 10 : \n";
-  {
+        unsigned char iv_bkcup[BLOCK_SIZE] = {
+          0xde,
+          0xad,
+        };
 
-    constexpr size_t BLOCK_SIZE = 10;
-    SudoCipher<BLOCK_SIZE> cipher;
+        unsigned char subject[DATA_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
 
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
-    };
+        unsigned char sbackup[DATA_SIZE] = {
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
+        };
 
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
-    };
+        unsigned char validator[DATA_SIZE] = {};
 
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x01,
-    };
+        unsigned char iv_block[BLOCK_SIZE];
+        std::memcpy(iv_block, iv, BLOCK_SIZE);
 
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
-    };
+        for (size_t i = 0; i < BLOCKS; ++i) {
+            for (size_t j = 0; j < BLOCK_SIZE; ++j) {
+                validator[(i * BLOCK_SIZE) + j] = iv_block[j] ^ subject[(i * BLOCK_SIZE) + j];
+                iv_block[j] = validator[(i * BLOCK_SIZE) + j];
+            }
+        }
 
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
-    };
+        for (size_t i = 0; i < BLOCKS; i++) {
+            Mode::CFB<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
+                cipher.encrypt(block);
+            });
+        }
 
-    unsigned char validator[BLOCK_SIZE] = {};
+        t.byte_eq(subject, validator, sizeof(validator), "CFB Mode eight block of size 8 Encrypt");
 
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
+        for (size_t i = 0; i < BLOCKS; i++) {
+            Mode::CFB<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
+                cipher.decrypt(block);
+            });
+        }
+
+        t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode eight block of size 8 Decrypt");
+        t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV eight block of size 8");
+        t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode eight block of size 8 Altered");
     }
 
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
-
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 10 Encrypt");
-
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
-
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 10 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 10");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 10 Altered");
-  }
-
-  std::cout << "CFB Mode Test Block 15 : \n";
-  {
-
-    constexpr size_t BLOCK_SIZE = 15;
-    SudoCipher<BLOCK_SIZE> cipher;
-
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
-    };
-
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
-    };
-
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22,
-    };
-
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd,
-    };
-
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd,
-    };
-
-    unsigned char validator[BLOCK_SIZE] = {};
-
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
-    }
-
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
-
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 15 Encrypt");
-
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
-
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 15 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 15");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 15 Altered");
-  }
-
-  std::cout << "CFB Mode Test Block 17 : \n";
-  {
-
-    constexpr size_t BLOCK_SIZE = 17;
-    SudoCipher<BLOCK_SIZE> cipher;
-
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
-    };
-
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
-    };
-
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe, 0xba, 0xd2, 0xde, 0xed, 0xff, 0x11, 0x22, 0xcc, 0xf1,
-    };
-
-    unsigned char subject[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd, 0xfa, 0x0b,
-    };
-
-    unsigned char sbackup[BLOCK_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0x22, 0x22, 0x22, 0x22, 0x22, 0xdd, 0xfa, 0x0b,
-    };
-
-    unsigned char validator[BLOCK_SIZE] = {};
-
-    for (size_t i = 0; i < BLOCK_SIZE; ++i) {
-      validator[i] = iv[i] ^ subject[i];
-    }
-
-    Mode::CFB<BLOCK_SIZE>::encrypt(subject, iv, [&cipher](unsigned char *block) { cipher.encrypt(block); });
-
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode Block 17 Encrypt");
-
-    Mode::CFB<BLOCK_SIZE>::decrypt(subject, iv_bkcup, [&cipher](unsigned char *block) { cipher.decrypt(block); });
-
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode Block 17 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV Block 17");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode Block 17 Altered");
-  }
-
-  std::cout << "CFB Mode Test two 8 Block : \n";
-  {
-    constexpr size_t DATA_SIZE = 16;
-    constexpr size_t BLOCK_SIZE = 8;
-    SudoCipher<BLOCK_SIZE> cipher;
-
-    constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
-
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
-
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
-
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe,
-    };
-
-    unsigned char subject[DATA_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
-
-    unsigned char sbackup[DATA_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
-
-    unsigned char validator[DATA_SIZE] = {};
-
-    unsigned char iv_block[BLOCK_SIZE];
-    std::memcpy(iv_block, iv, BLOCK_SIZE);
-
-    for (size_t i = 0; i < BLOCKS; ++i) {
-      for (size_t j = 0; j < BLOCK_SIZE; ++j) {
-        validator[(i * BLOCK_SIZE) + j] = iv_block[j] ^ subject[(i * BLOCK_SIZE) + j];
-        iv_block[j] = validator[(i * BLOCK_SIZE) + j];
-      }
-    }
-
-    for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CFB<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
-        cipher.encrypt(block);
-      });
-    }
-
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode 2 Block 8 Encrypt");
-
-    for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CFB<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
-        cipher.decrypt(block);
-      });
-    }
-
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode 2 Block 8 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV 2 Block 8");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode 2 Block 8 Altered");
-  }
-
-  std::cout << "CFB Mode Test eight 2 Block : \n";
-  {
-    constexpr size_t DATA_SIZE = 16;
-    constexpr size_t BLOCK_SIZE = 2;
-    SudoCipher<BLOCK_SIZE> cipher;
-
-    constexpr size_t BLOCKS = DATA_SIZE / BLOCK_SIZE;
-
-    unsigned char iv_original[BLOCK_SIZE] = {
-      0xde,
-      0xad,
-    };
-
-    unsigned char iv[BLOCK_SIZE] = {
-      0xde,
-      0xad,
-    };
-
-    unsigned char iv_bkcup[BLOCK_SIZE] = {
-      0xde,
-      0xad,
-    };
-
-    unsigned char subject[DATA_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
-
-    unsigned char sbackup[DATA_SIZE] = {
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xfa, 0x7e,
-    };
-
-    unsigned char validator[DATA_SIZE] = {};
-
-    unsigned char iv_block[BLOCK_SIZE];
-    std::memcpy(iv_block, iv, BLOCK_SIZE);
-
-    for (size_t i = 0; i < BLOCKS; ++i) {
-      for (size_t j = 0; j < BLOCK_SIZE; ++j) {
-        validator[(i * BLOCK_SIZE) + j] = iv_block[j] ^ subject[(i * BLOCK_SIZE) + j];
-        iv_block[j] = validator[(i * BLOCK_SIZE) + j];
-      }
-    }
-
-    for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CFB<BLOCK_SIZE>::encrypt(&subject[i * BLOCK_SIZE], iv, [&cipher](unsigned char *block) {
-        cipher.encrypt(block);
-      });
-    }
-
-    t.byte_eq(subject, validator, sizeof(validator), "CFB Mode eight block of size 8 Encrypt");
-
-    for (size_t i = 0; i < BLOCKS; i++) {
-      Mode::CFB<BLOCK_SIZE>::decrypt(&subject[i * BLOCK_SIZE], iv_bkcup, [&cipher](unsigned char *block) {
-        cipher.decrypt(block);
-      });
-    }
-
-    t.byte_eq(subject, sbackup, sizeof(sbackup), "CFB Mode eight block of size 8 Decrypt");
-    t.byte_eq(iv, iv_bkcup, sizeof(iv_bkcup), "CFB Mode IV eight block of size 8");
-    t.byte_neq(iv_original, iv, sizeof(iv_original), "CFB Mode eight block of size 8 Altered");
-  }
-
-  return t.get_final_verdict();
+    return t.get_final_verdict();
 }
